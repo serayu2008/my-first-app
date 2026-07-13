@@ -87,7 +87,7 @@ try:
     m1, m2, m3 = st.columns(3)
     m1.metric("연평균 서울 기온", f"{df['기온(°C)_서울'].mean():.2f} °C")
 
-    import streamlit as st
+import streamlit as st
 import pandas as pd
 import os
 
