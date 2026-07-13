@@ -89,31 +89,40 @@ try:
 
     import streamlit as st
 import pandas as pd
+import os
 
 # 1. 페이지 설정 및 제목
 st.set_page_config(page_title="기온 분석 및 전력수요 예측 대시보드", layout="wide")
 st.title("🏙️ 서울-양평 기온 비교(열섬현상) 및 전력수요 분석")
 
-# 2. 데이터 로드 함수 (캐싱 적용)
-@st.cache_data
-def load_data():
-    # 파일 읽기 (cp949 인코딩 적용)
-    seoul = pd.read_csv("서울_기온.csv", encoding="cp949")
-    yangpyeong = pd.read_csv("양평_기온.csv", encoding="cp949")
-    power = pd.read_csv("전력수요.csv", encoding="cp949")
-    
-    # 일시 컬럼을 datetime 형식으로 변환
-    seoul['일시'] = pd.to_datetime(seoul['일시'])
-    yangpyeong['일시'] = pd.to_datetime(yangpyeong['일시'])
-    power['일시'] = pd.to_datetime(power['일시'])
-    
-    # 월, 시 정보 추출
-    seoul['월'] = seoul['일시'].dt.month
-    seoul['시'] = seoul['일시'].dt.hour
-    
-    return seoul, yangpyeong, power
+# 파일 존재 여부 먼저 체크
+required_files = ["서울_기온.csv", "양평_기온.csv", "전력수요.csv"]
+missing_files = [f for f in required_files if not os.path.exists(f)]
 
-try:
+if missing_files:
+    st.error(f"❌ 필요한 데이터 파일이 없습니다: {', '.join(missing_files)}")
+    st.info("웹앱 스크립트(main.py)와 같은 폴더에 csv 파일들을 넣어주세요.")
+else:
+    # 2. 데이터 로드 함수 (캐싱 적용)
+    @st.cache_data
+    def load_data():
+        # 파일 읽기 (cp949 인코딩 적용)
+        seoul = pd.read_csv("서울_기온.csv", encoding="cp949")
+        yangpyeong = pd.read_csv("양평_기온.csv", encoding="cp949")
+        power = pd.read_csv("전력수요.csv", encoding="cp949")
+        
+        # 일시 컬럼을 datetime 형식으로 변환
+        seoul['일시'] = pd.to_datetime(seoul['일시'])
+        yangpyeong['일시'] = pd.to_datetime(yangpyeong['일시'])
+        power['일시'] = pd.to_datetime(power['일시'])
+        
+        # 월, 시 정보 추출
+        seoul['월'] = seoul['일시'].dt.month
+        seoul['시'] = seoul['일시'].dt.hour
+        
+        return seoul, yangpyeong, power
+
+    # 데이터 가져오기
     seoul_df, yang_df, power_df = load_data()
     
     # 데이터 병합
@@ -177,8 +186,6 @@ try:
         
         # ① 기온(가로)과 전력수요(세로)의 산점도
         st.subheader("① 기온과 전력수요의 산점도 (Scatter Plot)")
-        st.markdown("기온이 매우 낮거나(난방) 매우 높을 때(냉방) 전력수요가 급증하는 'U자형' 패턴을 주로 보입니다.")
-        # pandas 내장 데이터프레임 구조를 이용해 가로축, 세로축 지정 가능
         st.scatter_chart(data=df_power, x='기온(°C)', y='전력수요(MWh)')
         
         # 레이아웃 분할
@@ -187,14 +194,10 @@ try:
         with col3:
             # ② 기온 구간별 평균 전력수요 (막대그래프)
             st.subheader("② 기온 구간별 평균 전력수요")
-            # 5도 단위로 기온 구간 나누기 (예: -10~-5, -5~0, ... 30~35)
             df_power['기온구간'] = pd.cut(df_power['기온(°C)'], bins=range(-20, 45, 5))
-            
-            # 구간 정렬 및 평균 계산을 위해 문자열로 변환 후 그룹화
             df_power['기온구간_표시'] = df_power['기온구간'].astype(str)
             group_bin = df_power.groupby('기온구간_표시', sort=False)['전력수요(MWh)'].mean()
             
-            # 정렬된 순서를 보장하기 위해 빈 기준으로 다시 정렬하여 시각화
             bin_order = [str(b) for b in pd.cut(df_power['기온(°C)'], bins=range(-20, 45, 5)).unique().dropna().sort_values()]
             group_bin = group_bin.reindex(bin_order).dropna()
             
