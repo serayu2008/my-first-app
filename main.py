@@ -1,23 +1,9 @@
 import streamlit as st
-
-st.title("나의 첫 웹앱")
-st.write("안녕하세요! 반갑습니다.")
- 
-tab1, tab2 = st.tabs(["첫 번째 탭", "두 번째 탭"])
- 
-with tab1:
-	st.write("여기는 첫 번째 탭이에요.")
- 
-with tab2:
-	숫자 = st.slider("숫자를 골라보세요", 0, 100)
-	st.write("고른 숫자:", 숫자)
-
-import streamlit as st
 import pandas as pd
 
 # 1. 페이지 설정 및 제목
 st.set_page_config(page_title="서울-양평 도시 열섬현상 분석", layout="wide")
-st.title("🏙️ 서울 vs 🌲 양평 기온 비교를 통한 도시 열섬현상 분석")
+st.title("서울 vs 양평 기온 비교를 통한 도시 열섬현상 분석")
 st.markdown("""
 본 웹앱은 대도시인 **서울**과 근교 지역인 **양평**의 2025년 시간별 기온 데이터를 비교하여, 
 도시화로 인해 발생하는 도시 열섬현상을 시각적으로 확인하기 위해 제작되었습니다.
