@@ -2,14 +2,6 @@ import streamlit as st
 
 st.title("나의 첫 웹앱")
 st.write("안녕하세요! 반갑습니다.")
-
-숫자 = st.slider("좋아하는 숫자", 0, 100)
-st.write("고른 숫자:", 숫자)
- 
-if st.button("풍선 날리기"):
-	st.balloons()
-
-import streamlit as st
  
 tab1, tab2 = st.tabs(["첫 번째 탭", "두 번째 탭"])
  
