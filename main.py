@@ -207,12 +207,3 @@ try:
             month_power = df_power.groupby('월')['전력수요(MWh)'].mean()
             st.bar_chart(month_power)
             st.caption("💡 여름철(7~8월) 냉방 수요와 겨울철(12~1월) 난방 수요의 크기를 비교해볼 수 있습니다.")
-
-except FileNotFoundError as e:
-    st.error("❌ 파일을 찾을 수 없습니다. 웹앱 실행 폴더 내에 아래의 세 파일이 모두 존재하는지 확인해 주세요.")
-    st.markdown("- `서울_기온.csv`\n- `양평_기온.csv`\n- `전력수요.csv` (모두 한글 인코딩 `cp949`) ")
-    m2.metric("연평균 양평 기온", f"{df['기온(°C)_양평'].mean():.2f} °C")
-    m3.metric("평균 열섬 강도 (서울-양평)", f"{df['기온차(서울-양평)'].mean():.2f} °C")
-
-except FileNotFoundError:
-    st.error("❌ 데이터를 찾을 수 없습니다. 웹앱 파일(`app.py`)과 같은 폴더에 '서울_기온.csv'와 '양평_기온.csv' 파일이 존재하는지 확인해 주세요.")
